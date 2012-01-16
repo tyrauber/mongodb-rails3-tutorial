@@ -1,4 +1,4 @@
-# MongoDB, Rails 3 Sample Application and Tutorial
+# A MongoDB, MongoMapper, Rails 3 Sample Application and Tutorial
 
 The purpose of this tutorial is to provide step-by-step instruction on how to build a Rails 3 Application using MongoDB and MongoMapper. 
 
