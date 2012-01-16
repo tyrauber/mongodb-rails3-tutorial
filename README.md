@@ -31,20 +31,6 @@ To run a Rails 3 application, this, type the following:
 
 	$ rails server
 
-# The CliffNotes Version
-
-The down and dirty, for experienced Rails 3 developers:
-
-	* $ rails new app-name --skip-active-record 	#This is important because it doesn't add the hooks for ActiveRecord to your Rails App. 
-	* Add "source 'http://gemcutter.org'", "require 'rubygems'", "require 'mongo'" and "gem 'mongomapper'" to your GEMFILE before running $ bundle install.
-	* $ gem install bson_ext 	#Adds the c-extensions to improve performance.
-	* Add a mongo initializer 	# See part 1, step 6
-	* Add a mongo rake task		# See part 1, step 7
-	* No DB Migrations, MongoDB doesn't use them
-	* No "< ActiveRecord::Base" in your Model Class declaration.	# See part 2, 
-	* Add "include MongoMapper::Document" to the top of your model.
-	* Declare your fields in your model "key :title,   String"
-
 # The Tutorial
 
 ## Part 1:  Basic MongoDB Rails 3 Application Creation
@@ -120,9 +106,9 @@ You can rerun  'bundle install' to confirm successful gem installation.
 
 If you are unfamiliar with gems, the following commands are also handy:
 
-	*  $ gem install name-of-gem		#Installs a gem
-	*  $ gem uninstall name-of-gem 		#Uninstalls a gem
-	*  $ gem list 				# Lists all gems installed in your system
+	*	$ gem install name-of-gem		#Installs a gem
+	*	$ gem uninstall name-of-gem 		#Uninstalls a gem
+	*	$ gem list 				# Lists all gems installed in your system
 
 ### Step 4: Install the C Extensions for optimum MongoDB Ruby driver performance.
 
@@ -169,33 +155,7 @@ Add the following code:
 
 Save and exit mongo.rake.
 
-### Step 8:  Quiet Asset Chain Logging
-
-This step isn't really necessary, or even applicable to MongoDB, but is pertinent to Rails 3.  In Rails 3, the images, stylesheets and javascript folders are moved to an asset directory with the app directory.  As a result, every call to an image, stylesheet or javascript file is logged in the console, making it tiresome to use the log in application development.
-
-Therefore, in Rails 3 applications, I like to create an intializer, through the following terminal command:
-
-	$ nano config/initializers/quiet_assets.rb
-
-Add the following code:
-
-	Rails.application.assets.logger = Logger.new('/dev/null')
-	Rails::Rack::Logger.class_eval do
-  		def call_with_quiet_assets(env)
-   	 		previous_level = Rails.logger.level
-   			Rails.logger.level = Logger::ERROR if env['PATH_INFO'].index("/assets/") == 0
-    			call_without_quiet_assets(env).tap do
-      				Rails.logger.level = previous_level
-    			end
-  		end
-  		alias_method_chain :call, :quiet_assets
-	end
-
-This technique was discovered here: http://stackoverflow.com/questions/6312448/how-to-disable-logging-of-asset-pipeline-sprockets-messages-in-rails-3-1
-
-Special thanks to stackoverflow and choonkeat.
-
-### Step 9: Run the server
+### Step 8: Run the server
 
 In Rails 3, a rails server is started by typing:
 
@@ -217,5 +177,162 @@ You should see the standard Rails Welcome Aboard page.
 
 To kill the server, type CONTROL-c at the command prompt.
 
-## Part 2:  Adding Functionality to our MongoDB, Rails 3 Application
+## Part 2:  Adding Functionality to a MongoDB, Rails 3 Application
 
+This part of the tutorial is written to explain MongoDB specific changes to the Rails 3 development process.  The sample commands and code provided is for educational purposes and will not corrospond to files in the sample applicaion.
+
+### No Migration
+
+There are no migrations in a MongoDB Rails Application. MongoDB does not use ActiveRecord, therfore it doesn't require database migrations. The application data schema is structured in the model.
+
+### Create a Model without ActiveRecord::Base
+
+A MongoDB, Rails 3 application does not use ActiveRecord, therefore your model should not include "< ActiveRecord::Base" in your Model's class declartion.
+
+For example, let's say we were creating a model called Movie, at app/models/movie.rb.
+
+The top line of the model would simply be:
+
+	class Entities
+
+As opposed to the normal class declaration of:
+
+	class Entities < ActiveRecord::Base
+
+If you include ActiveRecord::Base, you will get errors when running the Rails Application because ActiveRecord is not included in the Application.
+
+### Include MongoMapper:Document in the Model
+
+We have required the MongoMapper gem in the application through the GEMFILE, but we must also include it in our models. Therefore, after our class declaration we must add the following line to our model:
+
+	include MongoMapper::Document
+
+### Key-Based Data Schema
+
+In MongoDB, data is stored in json-formatted document storage as opposed to a relational database. Because there isn't ActiveRecord or Migrations, we use MongoMapper to define our data schema in the model directly.  To do so, we make key declarations, like so:
+
+	key :title, String
+
+This would mean that in the Movie Model, there is json keypair with the key 'title' and a string value.
+
+MongoDB accepts the following key types:
+
+	*	String
+	*	Integer
+	*	Time
+	* 	Boolean
+	* 	Array
+
+To add timestamps to a model:
+
+	timestamps!
+
+### Validate Presence
+
+You may validate the presence of a value, through:
+
+	validates_presence_of :key_name
+
+Or through the key declaration:
+
+	key :key_name, key_type, :required => true
+
+In our Movie Model example, we may require a title with the following key declaration:
+
+	key :title, String, :required => true
+
+### Validate Uniqueness
+
+You may validate the uniqueness of a value, by:
+
+	validates_uniqueness_of :key_name
+
+Or through the key declaration:
+
+	key :key_name, key_type, :unique => true
+
+In our Movie Model example:
+
+	key :title, String, :required => true, :unique => true
+
+This validates the uniqueness of value, but does not actually create a unique key. To create a unique key:
+
+	ensure_index :title, :unique => true 
+
+### Validate Numericality
+
+Similiarily, you may validate numericality of a value, by:
+
+	validates_numericality_of :key_name
+
+Or, in the key declaration:
+
+	key :key_name, :numeric=> true
+
+### Model Associations
+
+In a relational database like MySQL, you may have One-to-Many or Many-to-Many assocaitions, through the use of 'belongs_to', 'many' and 'one' declarations. In a relational database, you could query these associations through a join. MongoDB doesn't have joins.
+
+In MongoDB, you store an array of ids as a key value to respresent the association.
+
+For example, let's say we have a Movie model and an Actor model. An actor belongs to a movie and a movie has many actors.
+
+We would create the following models:
+
+	class Movie
+		include MongoMapper::Document
+		key :title, 		String
+		key :actor_ids, 	Array
+		many :actors, :in => :actor_ids
+	end
+
+	class Actor
+  		include MongoMapper::Document
+		key :name, 	String
+  		belongs_to :movie
+	end
+
+### Embedded Documents
+
+MongoDB enables you to store documents within documents, as opposed to having each model be it's own collection of documents. This is useful when a document only belongs to one parent.
+
+For example,
+
+
+        class Movie
+                include MongoMapper::Document
+		key :title, String
+		many :votes
+        end
+
+        class Vote
+                include MongoMapper::EmbeddedDocument
+                key :user_name,      	String
+		key :rating,		Integer
+        end
+
+
+
+
+
+
+
+
+
+MongoDB doesn't have joins,
+
+An Example Movie Model with MongoMapper would be as follows:
+
+	class Movie
+  		include MongoMapper::Document
+
+		key :title,  		String
+		key :description,   	String
+		key :image,		String
+  		key :minutes,         	Integer
+  		key :release_date,     	Time
+  		key :active,      	Boolean
+  		key :actor_ids,		Array
+
+		many :authors, :in => :author_ids
+	end
