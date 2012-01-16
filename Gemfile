@@ -1,5 +1,4 @@
 	source 'http://rubygems.org'
-	source 'http://gemcutter.org'
 
 	require 'rubygems'
 	require 'mongo'
