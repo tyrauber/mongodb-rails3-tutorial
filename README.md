@@ -57,18 +57,12 @@ At the top of the GEMFILE, you should see the following:
 
 	source 'http://rubygems.org'
 
-After that line, add:
-
-	source 'http://gemcutter.org'
-
-This expands the places where bundler (the tool used to install gems) may look to find the gems specified, to also include gemcutter.org.
-
-We will now want to require both 'rubygems' and 'mongo' by adding the following under "source 'http://gemcutter.org:"
+Require both 'rubygems' and 'mongo' by adding the following under "source 'http://rubygems.org":
 
 	require 'rubygems'
 	require 'mongo'
 
-We will then want to include the mongo_mapper gem, after the rails gem:
+Include the mongo_mapper gem, after the rails gem:
 
 	gem 'rails', '3.1.1'
 	gem 'mongo_mapper'
@@ -76,7 +70,6 @@ We will then want to include the mongo_mapper gem, after the rails gem:
 In total, the top of our Gemfile should look something like this:
 
 	source 'http://rubygems.org'
-	source 'http://gemcutter.org'
 
 	require 'rubygems'
 	require 'mongo'
@@ -88,11 +81,11 @@ Save and exit the GEMFILE. In nano, type CONTROL-x, y, ENTER.
 
 ### Step 3:  Run the bundle installer:
 
-Now let's install the required gems. To do so, type at the command prompt:
+Now install the required gems, by typing at the command prompt:
 
 	$ bundle install
 
-If successful, you should see a list of gems and at the end of the list, the declaration, "Your bundle is complete!"
+If successful, you should see a list of gems and at the end of the list the declaration, "Your bundle is complete!"
 
 If for some reason this process fails, you may install a gem manually - for example 'mongodb' - through the following terminal command:
 
