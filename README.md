@@ -2,7 +2,7 @@
 
 The purpose of this tutorial is to provide step-by-step instruction on how to build a Rails 3 Application using MongoDB and MongoMapper. 
 
-MongoDB is a NoSQL database that can be used as a replacement for SqlLite, MySQL, Postgresql or other sql databases.  NoSQL is a great alternative for web applications where scalability is required or data must be grouped together in greater numbers than the hard limits applied by sql-based databases.
+MongoDB is a NoSQL database that can be used as a replacement for SqlLite, MySQL, Postgresql or other sql relational databases.  NoSQL is a great alternative for web applications where scalability is required or data must be grouped together in greater numbers than the hard limits applied by sql-based databases.
 
 Basic Ruby and Rails 3 knowledge will be required to follow this tutorial.
 
@@ -49,28 +49,16 @@ Navigate to the application directory:
 
 Now that we have generated our Rails 3 application framework, we should modify our Gemfile to include the necessary gems.
 
-To do so, we need to open GEMFILE in your favorite text editor. I prefer using nano from the command line:
+To do so, we need to open the Gemfile in a text editor. For example, nano from the command line:
 
 	$ nano GEMFILE
 
-At the top of the GEMFILE, you should see "source 'http://rubygems.org'".
-
-Require both 'rubygems' and 'mongo' by adding the following under "source 'http://rubygems.org":
-
-	require 'rubygems'
-	require 'mongo'
-
-Include the mongo_mapper gem, after the rails gem:
-
-	gem 'rails', '3.1.1'
-	gem 'mongo_mapper'
-
-In total, the top of our Gemfile should look something like this:
+At the top of the Gemfile, you should see:
 
 	source 'http://rubygems.org'
+	gem 'rails', '3.1.1'
 
-	require 'rubygems'
-	require 'mongo'
+Include the mongo_mapper gem, after the rails gem:
 
 	gem 'rails', '3.1.1'
 	gem 'mongo_mapper'
@@ -90,12 +78,6 @@ If for some reason this process fails, you may install a gem manually - for exam
 	$ gem install mongodb
 
 You can rerun  'bundle install' to confirm successful gem installation.  
-
-If you are unfamiliar with gems, the following commands are also handy:
-
-*	$ gem install name-of-gem		#Installs a gem
-*	$ gem uninstall name-of-gem 		#Uninstalls a gem
-*	$ gem list	 				# Lists all gems installed in your system
 
 ### Step 4: Install the C Extensions for optimum MongoDB Ruby driver performance.
 
@@ -126,7 +108,7 @@ Save and exit mongo.rb.
 
 ### Step 7: Create a MongoDB Rake Task
 
-We should also add a MongoDB Rake task to make our tests MongoDB-aware. At the command prompt:
+We also need to add a MongoDB Rake task to tell rake that it doesn't need to do anything when we run "rake db:test:prepare". At the command prompt:
 
 	$ lib/tasks/mongo.rake
 
@@ -172,27 +154,21 @@ This part of the tutorial is written to explain MongoDB specific changes to the 
 
 ### No Migration
 
-There are no migrations in a MongoDB Rails Application. MongoDB does not use ActiveRecord, therfore it doesn't require database migrations. The application data schema is structured in the model.
+There are no migrations in a MongoDB, MongoMapper Rails 3 Application. There is no ActiveRecord, database migrations or ActiveModel validations. The application data schema is structured and vailidated by MongoMapper in the model.
 
 ### Create a Model without ActiveRecord::Base
 
-A MongoDB, Rails 3 application does not use ActiveRecord, therefore your model should not include "< ActiveRecord::Base" in your Model's class declartion.
+The model should not include "< ActiveRecord::Base" in the model's class declartion. For example, let's say we were creating a model called Movie, at app/models/movie.rb. The top line of the model would simply be:
 
-For example, let's say we were creating a model called Movie, at app/models/movie.rb.
-
-The top line of the model would simply be:
-
-	class Entities
+	class Movies
 
 As opposed to the normal class declaration of:
 
-	class Entities < ActiveRecord::Base
-
-If you include ActiveRecord::Base, you will get errors when running the Rails Application because ActiveRecord is not included in the Application.
+	class Movies < ActiveRecord::Base
 
 ### Include MongoMapper:Document in the Model
 
-We have required the MongoMapper gem in the application through the GEMFILE, but we must also include it in our models. Therefore, after our class declaration we must add the following line to our model:
+We have included the MongoMapper gem in the application through our Gemfile, but we must also include it in our models. Therefore, after our class declaration we must add the following line to our model:
 
 	include MongoMapper::Document
 
@@ -286,9 +262,7 @@ The 1 determines an ascending sort order, while the -1 determines a descending s
 
 ### Model Associations
 
-In a relational database like MySQL, you may have One-to-Many or Many-to-Many assocaitions, through the use of 'belongs_to', 'many' and 'one' declarations. In a relational database, you could query these associations through a join. MongoDB doesn't have joins.
-
-In MongoDB, you store an array of ids as a key value to respresent the association.
+In a relational database, you may have One-to-Many or Many-to-Many associations.  In Rails and ActiveRecord, these associations are made through the use of 'belongs_to', 'many' and 'one' declarations. In a relational database, you would query these associations through a join, but MongoDB doesn't have joins. In MongoDB, you store an array of ids as a key value to represent the association.
 
 For example, let's say we have a Movie model and an Actor model. An actor belongs to a movie and a movie has many actors.
 
