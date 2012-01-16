@@ -313,17 +313,17 @@ MongoDB enables you to store documents within documents, as opposed to having ea
 
 For example:
 
-        class Movie
-                include MongoMapper::Document
+	class Movie
+		include MongoMapper::Document
 		key :title, String
 		many :votes
-        end
-
-        class Vote
-                include MongoMapper::EmbeddedDocument
-                key :user_name,      	String
+	end
+	
+	class Vote
+		include MongoMapper::EmbeddedDocument
+		key :user_name,      	String
 		key :rating,		Integer
-        end
+	end
 
 ## Querying with MongoMapper in Rails 3
 
