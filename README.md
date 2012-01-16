@@ -53,9 +53,7 @@ To do so, we need to open GEMFILE in your favorite text editor. I prefer using n
 
 	$ nano GEMFILE
 
-At the top of the GEMFILE, you should see the following:
-
-	source 'http://rubygems.org'
+At the top of the GEMFILE, you should see "source 'http://rubygems.org'".
 
 Require both 'rubygems' and 'mongo' by adding the following under "source 'http://rubygems.org":
 
