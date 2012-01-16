@@ -6,8 +6,6 @@ MongoDB is a NoSQL database that can be used as a replacement for SqlLite, MySQL
 
 Basic Ruby and Rails 3 knowledge will be required to follow this tutorial.
 
-*Note:*  Everything *after* the dollar symbol ($) is intended to be terminal command.  Everything *after* a pound symbol (#) is intended to be a comment and should not be included in the terminal command.
-
 ## Prerequisites:
 
 You must have the following installed on your system.
@@ -17,31 +15,33 @@ You must have the following installed on your system.
 *  MongoDB 2.0.2
 *  Git
 
-## Download the Sample Application
+# Sample Application
 
-The complete application can be downloaded using the following terminal command:
+The sample application may be downloaded using the following terminal command:
 
 	$ git clone git@github.com:tyrauber/mongodb-rails3-tutorial.git
 
-To run the Rails application, type the following at the command prompt:
+On by clicking on the following link: https://github.com/tyrauber/mongodb-rails3-tutorial/zipball/master
+
+Navigate to the application directory:
 
 	$ cd mongodb-rails3-tutorial/
 
-To run a Rails 3 application, this, type the following:
+To run a Rails 3 application, like this, type the following:
 
 	$ rails server
 
-# The Tutorial
+# Tutorial: Creating a MongoDB, MongoMapper Rails 3 Application
 
-## Part 1:  Basic MongoDB Rails 3 Application Creation
+The following tutorial results in the sample application included in this repository.
 
 ###  Step 1: Build a rails app using the  --skip-active-record option
 
-The very first thing we are going to need to do is build the Rails 3 Application framework. Since MongoDB isn't a SQL database, it does not use ActiveRecord to store data. We will instead be using the MongoMapper gem as a replacement for ActiveRecord.  Therefore, we will need to '--skip-active-record' when generating our Rails 3 Application.
+The very first thing we are going to do is build the Rails 3 Application framework. Since MongoDB isn't a SQL database, it does not use ActiveRecord to store data. We will instead be using the MongoMapper gem as a replacement for ActiveRecord.  Therefore, we will need to use '--skip-active-record' when generating our Rails 3 Application.
 
 	$ rails new mongodb-rails3-tutorial --skip-active-record
 
-Go ahead and change to the application directory:
+Navigate to the application directory:
 
 	$ cd mongodb-rails3-tutorial/
 
@@ -57,23 +57,21 @@ At the top of the GEMFILE, you should see the following:
 
 	source 'http://rubygems.org'
 
-After that line, add the following:
+After that line, add:
 
 	source 'http://gemcutter.org'
 
-This expands the places where bundler (the tool used to install gems) may look to find the required gems, to include gemcutter.org in addition to rubygems.org.
+This expands the places where bundler (the tool used to install gems) may look to find the gems specified, to also include gemcutter.org.
 
 We will now want to require both 'rubygems' and 'mongo' by adding the following under "source 'http://gemcutter.org:"
 
 	require 'rubygems'
 	require 'mongo'
 
-We will then want to include the following gems:
+We will then want to include the mongo_mapper gem, after the rails gem:
 
 	gem 'rails', '3.1.1'
 	gem 'mongo_mapper'
-	gem 'rest-client'
-	gem 'hpricot'
 
 In total, the top of our Gemfile should look something like this:
 
@@ -85,10 +83,8 @@ In total, the top of our Gemfile should look something like this:
 
 	gem 'rails', '3.1.1'
 	gem 'mongo_mapper'
-	gem 'rest-client'
-	gem 'hpricot'
 
-If so, save and exit the GEMFILE. In nano, type CONTROL-x, y, ENTER.
+Save and exit the GEMFILE. In nano, type CONTROL-x, y, ENTER.
 
 ### Step 3:  Run the bundle installer:
 
@@ -96,7 +92,7 @@ Now let's install the required gems. To do so, type at the command prompt:
 
 	$ bundle install
 
-If successful, you should see a list of gem names with 'Using' in front of them. At the end of the list, it should say "Your bundle is complete!"
+If successful, you should see a list of gems and at the end of the list, the declaration, "Your bundle is complete!"
 
 If for some reason this process fails, you may install a gem manually - for example 'mongodb' - through the following terminal command:
 
@@ -106,9 +102,9 @@ You can rerun  'bundle install' to confirm successful gem installation.
 
 If you are unfamiliar with gems, the following commands are also handy:
 
-	*	$ gem install name-of-gem		#Installs a gem
-	*	$ gem uninstall name-of-gem 		#Uninstalls a gem
-	*	$ gem list 				# Lists all gems installed in your system
+*	$ gem install name-of-gem		#Installs a gem
+*	$ gem uninstall name-of-gem 		#Uninstalls a gem
+*	$ gem list	 				# Lists all gems installed in your system
 
 ### Step 4: Install the C Extensions for optimum MongoDB Ruby driver performance.
 
@@ -135,11 +131,11 @@ Add the following code block:
 
 When our rails app starts, the above code makes a connection to the Mongo database, sets the database name and makes the database connection accessible to PhusionPassenger, if applicable.
 
-Save and exit the mongo.rb.
+Save and exit mongo.rb.
 
 ### Step 7: Create a MongoDB Rake Task
 
-We should also add a MongoDB Rake task to make a tests be MongoDB aware. At the command prompt:
+We should also add a MongoDB Rake task to make our tests MongoDB-aware. At the command prompt:
 
 	$ lib/tasks/mongo.rake
 
@@ -177,9 +173,11 @@ You should see the standard Rails Welcome Aboard page.
 
 To kill the server, type CONTROL-c at the command prompt.
 
-## Part 2:  Adding Functionality to a MongoDB, Rails 3 Application
+# Functionality Cheatsheet
 
 This part of the tutorial is written to explain MongoDB specific changes to the Rails 3 development process.  The sample commands and code provided is for educational purposes and will not corrospond to files in the sample applicaion.
+
+## Modeling with MongoDB and MongoMapper in Rails 3
 
 ### No Migration
 
@@ -207,13 +205,21 @@ We have required the MongoMapper gem in the application through the GEMFILE, but
 
 	include MongoMapper::Document
 
+You may alternatively declare a Model an EmbeddedDocument (a document stored within another document):
+
+	include MongoMapper::EmbeddedDocument
+
+More on this later.
+
 ### Key-Based Data Schema
 
-In MongoDB, data is stored in json-formatted document storage as opposed to a relational database. Because there isn't ActiveRecord or Migrations, we use MongoMapper to define our data schema in the model directly.  To do so, we make key declarations, like so:
+In MongoDB, data is stored in json-formatted document storage as opposed to a relational database. Because there isn't ActiveRecord or Migrations, use MongoMapper to define our data schema in the model directly.  To do so, make key declarations, like so:
 
 	key :title, String
 
-This would mean that in the Movie Model, there is json keypair with the key 'title' and a string value.
+This would mean that in the model there would be a keypair with the key 'title' and a string value.
+
+### Data Types
 
 MongoDB accepts the following key types:
 
@@ -269,6 +275,24 @@ Or, in the key declaration:
 
 	key :key_name, :numeric=> true
 
+### Indexing
+
+To improve the performance of querying in MongoDB, use indexing.  Indexing is defined in: config/intitializers/database.rb
+
+To index a single key, for example, title in our movie model, we'd do the following:
+
+	Movie.ensure_index(:title)
+
+To ensure uniqueness, we would add the ":unique => true" option:
+
+	Movie.ensure_index(:title, :unique => true)
+
+To index multiple keys, for example, genre and title:
+
+	 Movie.ensure_index([[:genre, 1], [:title, -1]], :unique => true) 
+
+The 1 determines an ascending sort order, while the -1 determines a descending sort order.
+
 ### Model Associations
 
 In a relational database like MySQL, you may have One-to-Many or Many-to-Many assocaitions, through the use of 'belongs_to', 'many' and 'one' declarations. In a relational database, you could query these associations through a join. MongoDB doesn't have joins.
@@ -296,8 +320,7 @@ We would create the following models:
 
 MongoDB enables you to store documents within documents, as opposed to having each model be it's own collection of documents. This is useful when a document only belongs to one parent.
 
-For example,
-
+For example:
 
         class Movie
                 include MongoMapper::Document
@@ -311,28 +334,71 @@ For example,
 		key :rating,		Integer
         end
 
+## Querying with MongoMapper in Rails 3
+
+Querying with MongoMapper is similiar to querying with ActiveRecord.
+
+###  Find All
+
+To find all documents associated with a model, do:
+
+	ModelName.all
+
+For example, with a model named Movie:
+
+	Movie.all
+
+Would return all movie documents.
+
+###  Find All With Conditions
+
+To find documents with specific conditions, for example all movies made in the year 2011:
+
+	Movie.all(:year => '2011')
+
+### Find First, Last
+
+Find the first record created, for example the first movie document created:
+
+	Movie.first
+
+Or:
+
+	Movie.all(:first)
+
+To find the last:
+
+	Movie.last
+
+Or:
+
+	Movie.all(:last)
+
+### Find Key or Keys
+
+To find records by a specific key, use:
+
+	Model.find_by_key_name(value)
+
+To find the movie Die Hard in our movie example:
+
+	Movie.find_by_title("Die Hard")
+
+To find all records by a specific key, use:
+
+	Model.find_all_by_key_name(value)
+
+To find all records with multiple key values, for example every movie made in 2011 with a running time of 110 minutes:
+
+	Model.find_all_by_year_and_minutes(2011,110)
+
+## More Information
+
+This tutorial was meant to provide a crash course on MongoDB, MongoMapper and Rails 3. To learn more:
+
+* 	About MongoDB, visit:		http://www.mongodb.org/display/DOCS/Ruby+Language+Center
+* 	About MongoMapper, visit:	http://mongomapper.com/documentation/
+*	About Rails 3, visit:		http://ruby.railstutorial.org/ruby-on-rails-tutorial-book
+	
 
 
-
-
-
-
-
-
-MongoDB doesn't have joins,
-
-An Example Movie Model with MongoMapper would be as follows:
-
-	class Movie
-  		include MongoMapper::Document
-
-		key :title,  		String
-		key :description,   	String
-		key :image,		String
-  		key :minutes,         	Integer
-  		key :release_date,     	Time
-  		key :active,      	Boolean
-  		key :actor_ids,		Array
-
-		many :authors, :in => :author_ids
-	end
