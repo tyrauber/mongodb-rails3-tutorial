@@ -1,6 +1,6 @@
-# Rails 3 / MongoDB Tutorial
+# MongoDB, Rails 3 Sample Application and Tutorial
 
-The purpose of this tutorial is to show step-by-step how to build a Rails 3 Application using MongoDB and MongoMapper. 
+The purpose of this tutorial is to provide step-by-step instruction on how to build a Rails 3 Application using MongoDB and MongoMapper. 
 
 MongoDB is a NoSQL database that can be used as a replacement for SqlLite, MySQL, Postgresql or other sql databases.  NoSQL is a great alternative for web applications where scalability is required or data must be grouped together in greater numbers than the hard limits applied by sql-based databases.
 
@@ -17,7 +17,7 @@ You must have the following installed on your system.
 *  MongoDB 2.0.2
 *  Git
 
-## Download the Example Application
+## Download the Sample Application
 
 The complete application can be downloaded using the following terminal command:
 
@@ -31,25 +31,21 @@ To run a Rails 3 application, this, type the following:
 
 	$ rails server
 
-# What to build?
+# The CliffNotes Version
 
-I am a media-junkie -  I love making media, I love consuming media - But I can't stand advertising.  So instead of subscribing to Cable Television, I get my media-fix through NetFlix Instant.
- 
-Therefore, I thought it might be fun to build something NetFlix related. 
+The down and dirty, for experienced Rails 3 developers:
 
-For this tutorial, we will be creating a NetFlix Instant New Releases Application that provides an simple method for browsing though NetFlix Instant's new releases. 
+	* $ rails new app-name --skip-active-record 	#This is important because it doesn't add the hooks for ActiveRecord to your Rails App. 
+	* Add "source 'http://gemcutter.org'", "require 'rubygems'", "require 'mongo'" and "gem 'mongomapper'" to your GEMFILE before running $ bundle install.
+	* $ gem install bson_ext 	#Adds the c-extensions to improve performance.
+	* Add a mongo initializer 	# See part 1, step 6
+	* Add a mongo rake task		# See part 1, step 7
+	* No DB Migrations, MongoDB doesn't use them
+	* No "< ActiveRecord::Base" in your Model Class declaration.	# See part 2, 
+	* Add "include MongoMapper::Document" to the top of your model.
+	* Declare your fields in your model "key :title,   String"
 
-Each movie should have an image, title, description and a link to watch the movie.
-
-The NetFlix API would be entirely too complex for our needs. so we will be using the following feed, curtesy of TheNowhereMan.com:
-
-	feeds.feedburner.com/NF-InstantTitlesThisWeek
-
-The application will grab the xml feed using the 'rest-client', parse the xml using using the 'hpricot' gem and then cache the data in our MongoDB using MongoMapper.
-
-So, let's begin.
-
-# Tutorial
+# The Tutorial
 
 ## Part 1:  Basic MongoDB Rails 3 Application Creation
 
@@ -124,9 +120,9 @@ You can rerun  'bundle install' to confirm successful gem installation.
 
 If you are unfamiliar with gems, the following commands are also handy:
 
-	*  $ gem install name-of-gem	#Installs a gem
-	*  $ gem uninstall name-of-gem #Uninstalls a gem
-	*  $ gem list 	# Lists all gems installed in your system
+	*  $ gem install name-of-gem		#Installs a gem
+	*  $ gem uninstall name-of-gem 		#Uninstalls a gem
+	*  $ gem list 				# Lists all gems installed in your system
 
 ### Step 4: Install the C Extensions for optimum MongoDB Ruby driver performance.
 
