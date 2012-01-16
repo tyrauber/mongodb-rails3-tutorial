@@ -63,7 +63,7 @@ Include the mongo_mapper gem, after the rails gem:
 	gem 'rails', '3.1.1'
 	gem 'mongo_mapper'
 
-Save and exit the GEMFILE. In nano, type CONTROL-x, y, ENTER.
+Save and exit the Gemfile. In nano, type CONTROL-x, y, ENTER.
 
 ### Step 3:  Run the bundle installer:
 
